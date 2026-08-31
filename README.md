@@ -1,36 +1,103 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Daily Hot News - Tim Developer Guide 🚀
 
-## Getting Started
+Selamat datang di repositori **Daily Hot News**! Proyek ini dibangun menggunakan **Next.js 15 (App Router)**, **Tailwind CSS**, **Prisma 7**, dan **Better-Auth**.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🏗️ Arsitektur & Cara Kerja Tim (Vertical Slice)
+
+Untuk mencegah bentrok (_conflict_) dan memperjelas tanggung jawab, tim kita menggunakan metode **Vertical Slice Architecture**. 
+
+**Apa itu Vertical Slice?**
+Setiap developer bertanggung jawab penuh atas satu fitur dari ujung ke ujung (_end-to-end_):
+1. **Database / Schema:** Memperbarui model di Prisma (jika ada perubahan/tabel baru).
+2. **Backend / SSR:** Membuat API Routes atau Server Actions, beserta logika pengambilan data.
+3. **Frontend / UI:** Membangun antarmuka pengguna dengan murni Tailwind CSS.
+
+### 📁 Standar Struktur Folder
+Berdasarkan pendekatan _Vertical Slice_, kita akan mengelompokkan file berdasarkan **fitur**, bukan tipe file.
+
+```text
+src/
+├── app/                  # (Routing Utama) Halaman Next.js (page.tsx, layout.tsx)
+├── components/           # Komponen UI global (Button, Navbar, dll - MURNI TAILWIND)
+├── features/             # (Fokus Vertical Slice) Semua fitur disimpan di sini
+│   ├── article/          # Contoh Fitur: Artikel
+│   │   ├── components/   # Komponen UI spesifik untuk artikel (misal: ArticleCard.tsx)
+│   │   ├── actions.ts    # Next.js Server Actions untuk artikel
+│   │   ├── queries.ts    # Fungsi pengambilan data database (Prisma)
+│   │   └── types.ts      # TypeScript interfaces/types untuk artikel
+│   └── comment/          # Contoh Fitur: Komentar
+├── lib/                  # Utilitas global (konfigurasi Prisma, Better-Auth, dsb)
+└── ...
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+*Aturan Emas:* Jika sebuah komponen hanya dipakai di satu fitur (misalnya `ArticleCard`), taruh di dalam folder fiturnya `src/features/article/components/`. Jika dipakai di banyak tempat (seperti `Button`), taruh di `src/components/`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🗄️ Database Workflow (Cloud DB Branching)
 
-## Learn More
+Kita menggunakan PostgreSQL, tetapi **tidak perlu setup database lokal (Docker, dll)**. Kita memanfaatkan fitur **Database Branching** dari layanan Cloud Database (misal: Neon / Supabase).
 
-To learn more about Next.js, take a look at the following resources:
+1. Setiap developer akan membuat "Branch" dari database utama di dashboard Cloud.
+2. Dapatkan _Connection String_ dari branch tersebut.
+3. Masukkan ke file `.env` lokal Anda sebagai `DATABASE_URL`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Dengan cara ini, jika Anda menghapus tabel atau melakukan migrasi, hal itu tidak akan merusak database rekan tim Anda.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 💻 Cara Memulai (Local Setup)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Langkah-langkah untuk melakukan _clone_ dan menjalankan proyek di mesin lokal Anda:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 1. Clone Repositori
+```bash
+git clone <repository-url>
+cd daily-hot-news
+```
+
+### 2. Install Dependensi
+Pastikan Anda sudah menginstal Node.js versi terbaru, lalu jalankan:
+```bash
+npm install
+```
+
+### 3. Setup Environment Variables
+Salin file template environment:
+```bash
+cp .env.example .env
+```
+Buka file `.env` dan isi variabel berikut:
+- `DATABASE_URL`: Masukkan URL dari database branch Anda (seperti yang dijelaskan di atas).
+- `BETTER_AUTH_SECRET`: Bebas diisi dengan string acak (untuk enkripsi sesi).
+- `BETTER_AUTH_URL`: `http://localhost:3000`
+
+### 4. Push Skema ke Database Anda
+Sinkronkan skema Prisma ke database branch Anda:
+```bash
+npx prisma db push
+```
+*(Catatan: Jangan gunakan `prisma migrate dev` kecuali disuruh oleh Lead Developer, cukup gunakan `db push` untuk prototyping cepat di branch Anda).*
+
+Lalu, _generate_ Prisma Client agar tipe datanya tersinkronisasi:
+```bash
+npx prisma generate
+```
+
+### 5. Jalankan Development Server
+```bash
+npm run dev
+```
+Buka [http://localhost:3000](http://localhost:3000) di browser Anda. Selamat _coding_!
+
+---
+
+## 🎨 Standar Styling (Tailwind CSS)
+
+Tim kita menggunakan **Murni Tailwind CSS** untuk seluruh styling tanpa bantuan UI Library/Koleksi tambahan (seperti shadcn/ui).
+- Gunakan _utility classes_ langsung di elemen HTML/JSX.
+- Buat komponen modular (misal: `<Button />`) jika styling dirasa mulai berulang dan kodenya berantakan.
+
+Semangat bekerja sama! Jika ada pertanyaan, jangan ragu untuk bertanya di grup tim. 🚀
