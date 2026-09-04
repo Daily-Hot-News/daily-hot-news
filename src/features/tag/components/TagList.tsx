@@ -1,20 +1,16 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { deleteCategory } from "../actions";
-import type { CategoryWithCount } from "../types";
+import { deleteTag } from "../actions";
+import type { TagWithCount } from "../types";
 
-type CategoryListProps = {
-  categories: CategoryWithCount[];
-  onEdit: (category: CategoryWithCount) => void;
+type TagListProps = {
+  tags: TagWithCount[];
+  onEdit: (tag: TagWithCount) => void;
   editingId?: string | null;
 };
 
-export function CategoryList({
-  categories,
-  onEdit,
-  editingId,
-}: CategoryListProps) {
+export function TagList({ tags, onEdit, editingId }: TagListProps) {
   const [isPending, startTransition] = useTransition();
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -22,16 +18,16 @@ export function CategoryList({
   function handleDelete(id: string) {
     setError(null);
     startTransition(async () => {
-      const result = await deleteCategory(id);
+      const result = await deleteTag(id);
       if (result?.error) setError(result.error);
       setConfirmingId(null);
     });
   }
 
-  if (categories.length === 0) {
+  if (tags.length === 0) {
     return (
       <div className="p-4 text-zinc-500 border border-zinc-200 rounded">
-        Belum ada kategori.
+        Belum ada tag.
       </div>
     );
   }
@@ -57,39 +53,37 @@ export function CategoryList({
             <tr>
               <th className={th}>Nama</th>
               <th className={th}>Slug</th>
-              <th className={th}>Induk</th>
               <th className={th}>Artikel</th>
               <th className={`${th} text-right`}>Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-200">
-            {categories.map((category) => (
+            {tags.map((tag) => (
               <tr
-                key={category.id}
+                key={tag.id}
                 className={
-                  category.id === editingId ? "bg-blue-50" : "hover:bg-zinc-50"
+                  tag.id === editingId ? "bg-blue-50" : "hover:bg-zinc-50"
                 }
               >
                 <td className={`${td} font-medium text-zinc-900`}>
-                  {category.name}
+                  {tag.name}
                 </td>
                 <td className={`${td} text-zinc-500 font-mono text-xs`}>
-                  {category.slug}
-                </td>
-                <td className={`${td} text-zinc-500`}>
-                  {category.parent?.name ?? (
-                    <span className="text-zinc-400 italic">—</span>
-                  )}
+                  {tag.slug}
                 </td>
                 <td className={`${td} text-zinc-500 tabular-nums`}>
-                  {category._count.articles}
+                  {tag._count.articles}
                 </td>
                 <td className={`${td} text-right`}>
-                  {confirmingId === category.id ? (
+                  {confirmingId === tag.id ? (
                     <span className="inline-flex items-center gap-3 justify-end">
-                      <span className="text-zinc-600">Hapus?</span>
+                      <span className="text-zinc-600">
+                        {tag._count.articles > 0
+                          ? `Lepas dari ${tag._count.articles} artikel?`
+                          : "Hapus?"}
+                      </span>
                       <button
-                        onClick={() => handleDelete(category.id)}
+                        onClick={() => handleDelete(tag.id)}
                         disabled={isPending}
                         className="text-red-600 font-medium hover:underline disabled:opacity-50"
                       >
@@ -106,7 +100,7 @@ export function CategoryList({
                   ) : (
                     <span className="inline-flex items-center gap-3 justify-end">
                       <button
-                        onClick={() => onEdit(category)}
+                        onClick={() => onEdit(tag)}
                         className="text-blue-600 hover:underline"
                       >
                         Edit
@@ -114,7 +108,7 @@ export function CategoryList({
                       <button
                         onClick={() => {
                           setError(null);
-                          setConfirmingId(category.id);
+                          setConfirmingId(tag.id);
                         }}
                         disabled={isPending}
                         className="text-red-600 hover:underline disabled:opacity-50"

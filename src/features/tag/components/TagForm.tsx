@@ -1,50 +1,23 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
-import { createCategory, updateCategory } from "../actions";
+import { createTag, updateTag } from "../actions";
 import { slugify } from "@/lib/slugify";
-import type { CategoryWithCount } from "../types";
+import type { TagWithCount } from "../types";
 
-interface CategoryFormProps {
-  initialData?: CategoryWithCount | null;
-  categories?: CategoryWithCount[];
+interface TagFormProps {
+  initialData?: TagWithCount | null;
   onSuccess?: () => void;
   onCancel?: () => void;
 }
 
-export function CategoryForm({
-  initialData,
-  categories = [],
-  onSuccess,
-  onCancel,
-}: CategoryFormProps) {
+export function TagForm({ initialData, onSuccess, onCancel }: TagFormProps) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
   const isEditing = !!initialData;
 
-  /**
-   * Kategori yang tidak boleh jadi induk: dirinya sendiri dan semua turunannya.
-   * Server tetap memvalidasi ulang (wouldCreateCycle) - ini cuma supaya pilihan
-   * yang pasti ditolak tidak muncul di dropdown.
-   */
-  const parentOptions = categories.filter((candidate) => {
-    if (!initialData) return true;
-    if (candidate.id === initialData.id) return false;
-
-    let cursor = candidate.parentId;
-    const seen = new Set<string>();
-    while (cursor) {
-      if (cursor === initialData.id) return false;
-      if (seen.has(cursor)) break;
-      seen.add(cursor);
-      cursor = categories.find((c) => c.id === cursor)?.parentId ?? null;
-    }
-    return true;
-  });
-
-  /** Isi slug otomatis dari nama, selama user belum mengetik slug sendiri. */
   function handleNameInput(event: React.ChangeEvent<HTMLInputElement>) {
     const form = formRef.current;
     if (!form || isEditing) return;
@@ -59,8 +32,8 @@ export function CategoryForm({
     setError(null);
     startTransition(async () => {
       const result = isEditing
-        ? await updateCategory(initialData.id, formData)
-        : await createCategory(formData);
+        ? await updateTag(initialData.id, formData)
+        : await createTag(formData);
 
       if (result?.error) {
         setError(result.error);
@@ -124,38 +97,6 @@ export function CategoryForm({
         />
       </div>
 
-      <div className="flex flex-col gap-1">
-        <label htmlFor="description" className="text-sm font-medium">
-          Deskripsi
-        </label>
-        <textarea
-          id="description"
-          name="description"
-          defaultValue={initialData?.description ?? ""}
-          rows={3}
-          className={fieldClass}
-        />
-      </div>
-
-      <div className="flex flex-col gap-1">
-        <label htmlFor="parentId" className="text-sm font-medium">
-          Kategori Induk
-        </label>
-        <select
-          id="parentId"
-          name="parentId"
-          defaultValue={initialData?.parentId ?? ""}
-          className={fieldClass}
-        >
-          <option value="">Tidak ada (tingkat atas)</option>
-          {parentOptions.map((category) => (
-            <option key={category.id} value={category.id}>
-              {category.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
       <div className="flex gap-2 mt-2">
         <button
           type="submit"
@@ -166,7 +107,7 @@ export function CategoryForm({
             ? "Menyimpan..."
             : isEditing
               ? "Simpan Perubahan"
-              : "Buat Kategori"}
+              : "Buat Tag"}
         </button>
 
         {onCancel && (
