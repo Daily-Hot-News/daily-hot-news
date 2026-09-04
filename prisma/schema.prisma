@@ -12,6 +12,7 @@ model User {
   email         String
   emailVerified Boolean
   image         String?
+  role          UserRole       @default(USER)
   createdAt     DateTime
   updatedAt     DateTime
   Session       Session[]
@@ -53,6 +54,7 @@ model Account {
   refreshTokenExpiresAt DateTime?
   scope                 String?
   password              String?
+  issuer                String?
   createdAt             DateTime
   updatedAt             DateTime
 
