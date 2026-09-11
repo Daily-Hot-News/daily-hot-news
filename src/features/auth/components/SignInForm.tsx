@@ -36,15 +36,15 @@ export function SignInForm() {
       className="flex flex-col gap-4 w-full max-w-sm mx-auto mt-5"
     >
       <div className="flex flex-col gap-1">
-        <label htmlFor="name" className="text-sm font-medium">
-          Name
+        <label htmlFor="email" className="text-sm font-medium">
+          Email
         </label>
         <input
           id="email"
           type="text"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="border rounded border-zinc-300 px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="md:max-w-md border rounded border-zinc-300 px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           required
         />
       </div>
