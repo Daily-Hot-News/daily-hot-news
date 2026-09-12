@@ -9,6 +9,10 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    // File ini hanya dibaca Prisma CLI (db push, migrate, studio), bukan runtime aplikasi.
+    // Runtime pakai DATABASE_URL lewat pg Pool di src/lib/prisma.ts.
+    // CLI harus lewat koneksi langsung (port 5432): transaction pooler (pgbouncer=true,
+    // port 6543) tidak mendukung prepared statement yang dipakai `db push`.
+    url: process.env["DIRECT_URL"] ?? process.env["DATABASE_URL"],
   },
 });

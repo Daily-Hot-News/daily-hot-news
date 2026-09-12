@@ -165,6 +165,13 @@ model Article {
 
   viewCount Int @default(0)
 
+  /// [Dev C - Search] Kolom full-text search.
+  /// Nilainya di-generate database (GENERATED ALWAYS AS ... STORED), bukan ditulis aplikasi.
+  /// Didefinisikan di prisma/sql/01_article_search.sql - jalankan script itu SETIAP KALI
+  /// setelah `prisma db push`, kalau tidak pencarian akan diam-diam kosong.
+  /// Dideklarasikan di sini semata-mata agar `db push` tidak menghapus kolomnya.
+  searchVector Unsupported("tsvector")? @map("search_vector")
+
   commentsEnabled Boolean   @default(true)
   comments        Comment[]
 
