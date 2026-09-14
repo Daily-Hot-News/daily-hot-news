@@ -50,11 +50,12 @@ export function Navbar() {
   };
 
   // Navigation links array
-  const navLinks = [
-    { name: "Home", href: "/" },
-    { name: "Category", href: "/category" },
-    // { name: "Login", href: "/sign-in" },
-  ];
+  const navLinks = [{ name: "Home", href: "/" }];
+
+  const roleBadgeStyles: Record<string, string> = {
+    AUTHOR: "bg-purple-100 text-purple-700 border border-purple-200", // Ungu untuk Author
+    USER: "bg-blue-100 text-blue-700 border border-blue-200", // Biru untuk User biasa
+  };
 
   return (
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
@@ -143,9 +144,8 @@ export function Navbar() {
                       {/* Badge Role */}
                       <span
                         className={`inline-block px-2 py-0.5 text-[10px] font-semibold uppercase rounded-full ${
-                          userRole === "AUTHOR"
-                            ? "bg-purple-100 text-purple-700"
-                            : "bg-blue-100 text-blue-700"
+                          roleBadgeStyles[userRole] ||
+                          "bg-gray-100 text-gray-700"
                         }`}
                       >
                         {userRole}
@@ -157,7 +157,7 @@ export function Navbar() {
                         href="/profile"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-gray-900 transition-colors"
                       >
-                        Account Profile
+                        Profil Akun
                       </Link>
                       {/* Exclusive menu for AUTHOR role */}
                       {userRole === "AUTHOR" && (
@@ -166,10 +166,10 @@ export function Navbar() {
                             href="/articles/create"
                             className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-gray-900 transition-colors"
                           >
-                            Create New Article
+                            Tulis Artikel Baru
                           </Link>
                           <Link
-                            href="/dashboard/author"
+                            href={`/authors/${user.id}`}
                             className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-gray-900 transition-colors"
                           >
                             Author Dashboard
@@ -277,10 +277,8 @@ export function Navbar() {
                       {user.name}
                     </p>
                     <span
-                      className={`px-1 py-0.5 text-[0.6rem] font-medium uppercase rounded-full ${
-                        userRole === "AUTHOR"
-                          ? "bg-purple-100 text-purple-600"
-                          : "bg-blue-100 text-blue-600"
+                      className={`inline-block px-2 py-0.5 text-[10px] font-semibold uppercase rounded-full ${
+                        roleBadgeStyles[userRole] || "bg-gray-100 text-gray-700"
                       }`}
                     >
                       {userRole}
@@ -292,7 +290,7 @@ export function Navbar() {
                     href="/profile"
                     className="block px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100"
                   >
-                    Account Profile
+                    Profil Akun
                   </Link>
                   {userRole === "AUTHOR" && (
                     <div>
@@ -300,10 +298,10 @@ export function Navbar() {
                         href="/articles/create"
                         className="block px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100"
                       >
-                        Create New Article
+                        Tulis Artikel Baru
                       </Link>
                       <Link
-                        href="/dashboard/author"
+                        href={`/authors/${user.id}`}
                         className="block px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100"
                       >
                         Author Dashboard
