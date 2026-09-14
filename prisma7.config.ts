@@ -7,6 +7,7 @@ export default defineConfig({
   schema: "prisma/schema.prisma",
   migrations: {
     path: "prisma/migrations",
+    seed: "tsx prisma/seed.ts",
   },
   datasource: {
     // File ini hanya dibaca Prisma CLI (db push, migrate, studio), bukan runtime aplikasi.
