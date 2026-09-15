@@ -9,27 +9,26 @@ datasource db {
 model User {
   id            String         @id
   name          String
-  email         String
+  email         String         @unique
   emailVerified Boolean
   image         String?
-  role          UserRole       @default(USER)
   createdAt     DateTime
   updatedAt     DateTime
-  Session       Session[]
-  Account       Account[]
-  authorProfile AuthorProfile?
+  role          UserRole       @default(USER)
   articles      Article[]
-  medias        Media[]
+  authorProfile AuthorProfile?
   comments      Comment[]
+  medias        Media[]
+  Account       Account[]
+  Session       Session[]
 
-  @@unique([email])
   @@map("user")
 }
 
 model Session {
   id        String   @id
   expiresAt DateTime
-  token     String
+  token     String   @unique
   createdAt DateTime
   updatedAt DateTime
   ipAddress String?
@@ -37,7 +36,6 @@ model Session {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([token])
   @@map("session")
 }
 
@@ -46,7 +44,6 @@ model Account {
   accountId             String
   providerId            String
   userId                String
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   accessToken           String?
   refreshToken          String?
   idToken               String?
@@ -54,9 +51,10 @@ model Account {
   refreshTokenExpiresAt DateTime?
   scope                 String?
   password              String?
-  issuer                String?
   createdAt             DateTime
   updatedAt             DateTime
+  issuer                String?
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("account")
 }
@@ -72,113 +70,77 @@ model Verification {
   @@map("verification")
 }
 
-enum UserRole {
-  USER
-  AUTHOR
-}
-
-enum ArticleStatus {
-  DRAFT
-  SCHEDULED
-  PUBLISHED
-  ARCHIVED
-}
-
 model AuthorProfile {
-  id String @id @default(cuid())
-
-  userId String @unique
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  id          String   @id @default(cuid())
+  userId      String   @unique
   displayName String
-  slug        String @unique
-
-  bio       String?
-  avatarUrl String?
-  jobTitle  String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  slug        String   @unique
+  bio         String?
+  avatarUrl   String?
+  jobTitle    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([slug])
 }
 
 model Category {
-  id String @id @default(cuid())
-
+  id          String     @id @default(cuid())
   name        String
-  slug        String  @unique
+  slug        String     @unique
   description String?
-
-  parentId String?
-  parent   Category? @relation("CategoryHierarchy", fields: [parentId], references: [id])
-
-  children Category[] @relation("CategoryHierarchy")
-
-  articles Article[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  parentId    String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  articles    Article[]
+  parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryHierarchy")
 
   @@index([slug])
   @@index([parentId])
 }
 
 model Tag {
-  id   String @id @default(cuid())
-  name String
-  slug String @unique
-
-  articles ArticleTag[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id        String       @id @default(cuid())
+  name      String
+  slug      String       @unique
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  articles  ArticleTag[]
 
   @@index([slug])
 }
 
 model Article {
-  id String @id @default(cuid())
-
-  title String
-  slug  String @unique
-
-  excerpt String?
-  content String
-
+  id              String                   @id @default(cuid())
+  title           String
+  slug            String                   @unique
+  excerpt         String?
+  content         String
   featuredImageId String?
-  featuredImage   Media?  @relation("FeaturedArticleImage", fields: [featuredImageId], references: [id], onDelete: SetNull)
-
-  authorId String
-  author   User   @relation(fields: [authorId], references: [id], onDelete: Restrict)
-
-  categoryId String
-  category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-
-  status ArticleStatus @default(DRAFT)
-
-  publishedAt DateTime?
-  scheduledAt DateTime?
-
+  authorId        String
+  categoryId      String
+  status          ArticleStatus            @default(DRAFT)
+  publishedAt     DateTime?
+  scheduledAt     DateTime?
   metaTitle       String?
   metaDescription String?
-
-  viewCount Int @default(0)
-
+  viewCount       Int                      @default(0)
+  commentsEnabled Boolean                  @default(true)
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
   /// [Dev C - Search] Kolom full-text search.
   /// Nilainya di-generate database (GENERATED ALWAYS AS ... STORED), bukan ditulis aplikasi.
   /// Didefinisikan di prisma/sql/01_article_search.sql - jalankan script itu SETIAP KALI
   /// setelah `prisma db push`, kalau tidak pencarian akan diam-diam kosong.
   /// Dideklarasikan di sini semata-mata agar `db push` tidak menghapus kolomnya.
-  searchVector Unsupported("tsvector")? @map("search_vector")
-
-  commentsEnabled Boolean   @default(true)
+  searchVector    Unsupported("tsvector")? @map("search_vector")
+  author          User                     @relation(fields: [authorId], references: [id])
+  category        Category                 @relation(fields: [categoryId], references: [id])
+  featuredImage   Media?                   @relation("FeaturedArticleImage", fields: [featuredImageId], references: [id])
+  tags            ArticleTag[]
   comments        Comment[]
-
-  tags ArticleTag[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
   @@index([authorId])
   @@index([categoryId])
@@ -192,62 +154,46 @@ model Article {
 model ArticleTag {
   articleId String
   tagId     String
-
-  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
-
-  tag Tag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   @@id([articleId, tagId])
   @@index([tagId])
 }
 
 model Media {
-  id String @id @default(cuid())
-
-  fileName     String
-  originalName String
-
-  url      String
-  publicId String?
-
-  mimeType String
-  size     Int
-
-  width  Int?
-  height Int?
-
-  altText String?
-  caption String?
-
-  uploadedById String?
-  uploadedBy   User?   @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
-
+  id               String    @id @default(cuid())
+  fileName         String
+  originalName     String
+  url              String
+  publicId         String?
+  mimeType         String
+  size             Int
+  width            Int?
+  height           Int?
+  altText          String?
+  caption          String?
+  uploadedById     String?
+  createdAt        DateTime  @default(now())
   featuredArticles Article[] @relation("FeaturedArticleImage")
-
-  createdAt DateTime @default(now())
+  uploadedBy       User?     @relation(fields: [uploadedById], references: [id])
 
   @@index([uploadedById])
   @@index([createdAt])
 }
 
 model Comment {
-  id String @id @default(cuid())
-
-  content String
-
-  articleId String
-  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
-
-  userId String?
-  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
-
+  id         String   @id @default(cuid())
+  content    String
+  articleId  String
+  userId     String?
   guestName  String?
   guestEmail String?
-
-  isApproved Boolean @default(false)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  isApproved Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  article    Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  user       User?    @relation(fields: [userId], references: [id])
 
   @@index([articleId])
   @@index([userId])
@@ -256,15 +202,24 @@ model Comment {
 }
 
 model NewsletterSubscriber {
-  id String @id @default(cuid())
-
-  email String @unique
-
-  isActive Boolean @default(true)
-
+  id             String    @id @default(cuid())
+  email          String    @unique
+  isActive       Boolean   @default(true)
   subscribedAt   DateTime  @default(now())
   unsubscribedAt DateTime?
 
   @@index([email])
   @@index([isActive])
+}
+
+enum UserRole {
+  USER
+  AUTHOR
+}
+
+enum ArticleStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+  ARCHIVED
 }
