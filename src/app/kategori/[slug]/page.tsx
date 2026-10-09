@@ -8,6 +8,7 @@ import {
 import { ArticleCard } from "@/components/ArticleCard";
 import { Pagination } from "@/components/Pagination";
 import { PER_PAGE, parsePageParam } from "@/lib/pagination";
+import { categoryAccent } from "@/lib/categoryAccent";
 import { absoluteUrl } from "@/lib/site";
 
 type Props = {
@@ -53,52 +54,78 @@ export default async function CategoryArchivePage({
   });
 
   const totalPages = Math.ceil(total / PER_PAGE);
+  const accent = categoryAccent(category.slug);
 
   return (
-    <main className="min-h-screen p-8">
-      <div className="max-w-3xl mx-auto">
-        <nav className="text-sm text-zinc-500 mb-2">
-          <Link href="/" className="hover:underline">
-            Beranda
-          </Link>
-          <span aria-hidden> / </span>
-          {category.parent && (
-            <>
-              <Link
-                href={`/kategori/${category.parent.slug}`}
-                className="hover:underline"
-              >
-                {category.parent.name}
-              </Link>
-              <span aria-hidden> / </span>
-            </>
+    <main>
+      {/* Pita judul berwarna khas kategori ini. */}
+      <header className={`bg-linear-to-r ${accent.gradient}`}>
+        <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
+          <nav
+            aria-label="Breadcrumb"
+            className="flex flex-wrap items-center gap-2 text-sm text-white/80"
+          >
+            <Link href="/" className="transition-colors hover:text-white">
+              Beranda
+            </Link>
+            <span aria-hidden>/</span>
+            {category.parent && (
+              <>
+                <Link
+                  href={`/kategori/${category.parent.slug}`}
+                  className="transition-colors hover:text-white"
+                >
+                  {category.parent.name}
+                </Link>
+                <span aria-hidden>/</span>
+              </>
+            )}
+            <span className="font-medium text-white">{category.name}</span>
+          </nav>
+
+          <h1 className="mt-3 font-serif text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+            {category.name}
+          </h1>
+
+          <p className="mt-2 text-sm font-medium text-white/90">
+            {total} artikel tayang
+          </p>
+
+          {category.description && (
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/90">
+              {category.description}
+            </p>
           )}
-          <span className="text-zinc-700">{category.name}</span>
-        </nav>
+        </div>
+      </header>
 
-        <h1 className="text-3xl font-bold">{category.name}</h1>
-        {category.description && (
-          <p className="text-zinc-600 mt-2">{category.description}</p>
-        )}
-
+      <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
         {category.children.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-4">
-            {category.children.map((child) => (
-              <Link
-                key={child.id}
-                href={`/kategori/${child.slug}`}
-                className="px-3 py-1 text-sm border border-zinc-300 rounded-full hover:bg-zinc-100"
-              >
-                {child.name}
-              </Link>
-            ))}
+          <div className="mb-8 flex flex-wrap items-center gap-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">
+              Sub-kategori
+            </span>
+            {category.children.map((child) => {
+              const childAccent = categoryAccent(child.slug);
+              return (
+                <Link
+                  key={child.id}
+                  href={`/kategori/${child.slug}`}
+                  className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm font-medium transition-opacity hover:opacity-80 ${childAccent.badge}`}
+                >
+                  <span
+                    className={`h-1.5 w-1.5 rounded-full ${childAccent.dot}`}
+                    aria-hidden
+                  />
+                  {child.name}
+                </Link>
+              );
+            })}
           </div>
         )}
 
-        <hr className="my-6 border-zinc-200" />
-
         {articles.length === 0 ? (
-          <p className="text-zinc-500">
+          <p className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 p-8 text-center text-sm text-zinc-600">
             Belum ada artikel di kategori ini.
           </p>
         ) : (
@@ -113,9 +140,7 @@ export default async function CategoryArchivePage({
               page={page}
               totalPages={totalPages}
               hrefFor={(n) =>
-                n === 1
-                  ? `/kategori/${slug}`
-                  : `/kategori/${slug}?page=${n}`
+                n === 1 ? `/kategori/${slug}` : `/kategori/${slug}?page=${n}`
               }
             />
           </>

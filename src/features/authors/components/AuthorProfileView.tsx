@@ -35,7 +35,10 @@ export function AuthorProfileView({
 
   return (
     <div className="min-h-screen bg-zinc-50/50 pb-16">
-      <div className="h-35 sm:h-40 relative overflow-hidden" />
+      {/* Banner: tadinya kotak kosong tanpa latar, jadi kartu profil seperti
+          menggantung di ruang putih. Gradiennya mengikuti aksen biru yang
+          sudah dipakai di dalam kartu ini (nama jabatan, avatar, tombol). */}
+      <div className="h-35 sm:h-40 relative overflow-hidden bg-linear-to-r from-blue-700 via-indigo-600 to-violet-500" />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Main profile card (overlapping banner) */}
@@ -65,7 +68,7 @@ export function AuthorProfileView({
                     {authorProfile.displayName}
                   </h1>
                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-50 text-purple-700 border border-purple-200/60">
-                    AUTHOR
+                    PENULIS
                   </span>
                 </div>
 
@@ -183,7 +186,7 @@ export function AuthorProfileView({
                   <div className="space-y-2">
                     {/* Title */}
                     <Link
-                      href={`/articles/${article.slug}`}
+                      href={`/artikel/${article.slug}`}
                       className="text-base sm:text-lg font-bold text-zinc-900 group-hover:text-blue-600 transition-colors line-clamp-2"
                     >
                       {article.title}

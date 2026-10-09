@@ -25,13 +25,20 @@ export function ShowNotification() {
     }
   }, [showNotification]);
 
+  if (!showNotification) return null;
+
+  /*
+   * Toast melayang. Sebelumnya `absolute` tanpa ancestor ber-position, jadi
+   * tempatnya jatuh di paling atas dokumen - tertutup navbar yang sticky.
+   * Sekarang `fixed` di bawah navbar dengan z di atasnya.
+   */
   return (
-    <div className="flex flex-col gap-4">
-      {showNotification && (
-        <div className="absolute w-full left-0 bg-green-100 text-green-700 p-3 rounded-md text-sm text-center">
-          Registration was successful!
-        </div>
-      )}
+    <div
+      role="status"
+      aria-live="polite"
+      className="fixed left-1/2 top-24 z-[60] w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-center text-sm font-medium text-emerald-800 shadow-lg"
+    >
+      Registration was successful!
     </div>
   );
 }

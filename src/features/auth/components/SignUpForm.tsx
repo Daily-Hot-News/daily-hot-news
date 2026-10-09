@@ -57,7 +57,7 @@ export function SignUpForm() {
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="border rounded border-zinc-300 px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="rounded-lg border border-zinc-300 px-3.5 py-2.5 text-sm transition-colors focus:border-red-400 focus:outline-none focus:ring-2 focus:ring-red-200"
           required
         />
       </div>
@@ -71,7 +71,7 @@ export function SignUpForm() {
           type="text"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="border rounded border-zinc-300 px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="rounded-lg border border-zinc-300 px-3.5 py-2.5 text-sm transition-colors focus:border-red-400 focus:outline-none focus:ring-2 focus:ring-red-200"
           required
         />
       </div>
@@ -85,7 +85,7 @@ export function SignUpForm() {
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="border rounded border-zinc-300 px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="rounded-lg border border-zinc-300 px-3.5 py-2.5 text-sm transition-colors focus:border-red-400 focus:outline-none focus:ring-2 focus:ring-red-200"
           required
         />
       </div>
@@ -99,7 +99,7 @@ export function SignUpForm() {
           type="password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
-          className="border rounded border-zinc-300 px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="rounded-lg border border-zinc-300 px-3.5 py-2.5 text-sm transition-colors focus:border-red-400 focus:outline-none focus:ring-2 focus:ring-red-200"
           required
         />
       </div>
@@ -108,10 +108,10 @@ export function SignUpForm() {
       </Button>
 
       <div className="flex justify-end gap-1">
-        <label className="text-sm font-medium">Already have an account? </label>
+        <span className="text-sm text-zinc-600">Already have an account? </span>
         <Link
           href="/sign-in"
-          className="text-sm font-medium hover:text-blue-500 transition duration-300 cursor-pointer"
+          className="text-sm font-semibold text-red-600 transition-colors duration-200 hover:text-red-700"
         >
           Sign in
         </Link>

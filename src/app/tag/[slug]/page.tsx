@@ -48,25 +48,39 @@ export default async function TagArchivePage({ params, searchParams }: Props) {
   const totalPages = Math.ceil(total / PER_PAGE);
 
   return (
-    <main className="min-h-screen p-8">
-      <div className="max-w-3xl mx-auto">
-        <nav className="text-sm text-zinc-500 mb-2">
-          <Link href="/" className="hover:underline">
-            Beranda
-          </Link>
-          <span aria-hidden> / </span>
-          <span className="text-zinc-700">Tag</span>
-        </nav>
+    <main>
+      {/* Tag pakai aksen biru - sengaja dibedakan dari pita kategori. */}
+      <header className="border-b border-zinc-200 bg-linear-to-br from-blue-50 via-white to-sky-50">
+        <div className="mx-auto max-w-4xl px-4 py-9 sm:px-6 lg:px-8">
+          <nav
+            aria-label="Breadcrumb"
+            className="flex flex-wrap items-center gap-2 text-sm text-zinc-500"
+          >
+            <Link href="/" className="transition-colors hover:text-blue-700">
+              Beranda
+            </Link>
+            <span aria-hidden>/</span>
+            <span className="font-medium text-zinc-700">Tag</span>
+          </nav>
 
-        <h1 className="text-3xl font-bold">#{tag.name}</h1>
-        <p className="text-zinc-600 mt-2">
-          {total} artikel dengan tag ini.
-        </p>
+          <h1 className="mt-3 flex flex-wrap items-center gap-3 font-serif text-3xl font-extrabold tracking-tight text-zinc-900 sm:text-4xl">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-blue-600 to-sky-500 text-xl font-bold text-white shadow-sm">
+              #
+            </span>
+            {tag.name}
+          </h1>
 
-        <hr className="my-6 border-zinc-200" />
+          <p className="mt-2 text-sm font-medium text-zinc-600">
+            {total} artikel dengan tag ini.
+          </p>
+        </div>
+      </header>
 
+      <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
         {articles.length === 0 ? (
-          <p className="text-zinc-500">Belum ada artikel dengan tag ini.</p>
+          <p className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 p-8 text-center text-sm text-zinc-600">
+            Belum ada artikel dengan tag ini.
+          </p>
         ) : (
           <>
             <div className="flex flex-col gap-4">

@@ -35,45 +35,58 @@ export default async function SearchPage({ searchParams }: Props) {
   const popularTags = results ? [] : await getPopularTags(12);
 
   return (
-    <main className="min-h-screen p-8">
-      <div className="max-w-3xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Cari Berita</h1>
+    <main>
+      <header className="border-b border-zinc-200 bg-linear-to-br from-red-50 via-white to-blue-50">
+        <div className="mx-auto max-w-4xl px-4 py-9 sm:px-6 lg:px-8">
+          <h1 className="font-serif text-3xl font-extrabold tracking-tight text-zinc-900 sm:text-4xl">
+            Cari Berita
+          </h1>
+          <div className="mt-5">
+            <SearchBar defaultValue={query} autoFocus={!query} />
+          </div>
+        </div>
+      </header>
 
-        <SearchBar defaultValue={query} autoFocus={!query} />
+      <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
+        {results ? (
+          <SearchResults
+            query={query}
+            results={results}
+            hrefFor={(n) =>
+              `/search?q=${encodeURIComponent(query)}${n === 1 ? "" : `&page=${n}`}`
+            }
+          />
+        ) : (
+          <div>
+            <p className="text-sm text-zinc-600">
+              Ketik kata kunci di atas untuk mulai mencari.
+            </p>
 
-        <div className="mt-8">
-          {results ? (
-            <SearchResults
-              query={query}
-              results={results}
-              hrefFor={(n) =>
-                `/search?q=${encodeURIComponent(query)}${n === 1 ? "" : `&page=${n}`}`
-              }
-            />
-          ) : (
-            <div className="text-zinc-600">
-              <p>Ketik kata kunci di atas untuk mulai mencari.</p>
-
-              {popularTags.length > 0 && (
-                <div className="mt-6">
-                  <h2 className="text-sm font-medium text-zinc-500 mb-3">
+            {popularTags.length > 0 && (
+              <div className="mt-8">
+                <div className="flex items-center gap-3">
+                  <span
+                    className="h-6 w-1.5 rounded-full bg-linear-to-b from-blue-600 to-sky-500"
+                    aria-hidden
+                  />
+                  <h2 className="font-serif text-xl font-bold text-zinc-900">
                     Topik populer
                   </h2>
-                  <div className="flex flex-wrap gap-2">
-                    {popularTags.map((tag) => (
-                      <TagPill
-                        key={tag.id}
-                        name={tag.name}
-                        slug={tag.slug}
-                        count={tag._count.articles}
-                      />
-                    ))}
-                  </div>
                 </div>
-              )}
-            </div>
-          )}
-        </div>
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {popularTags.map((tag) => (
+                    <TagPill
+                      key={tag.id}
+                      name={tag.name}
+                      slug={tag.slug}
+                      count={tag._count.articles}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </main>
   );

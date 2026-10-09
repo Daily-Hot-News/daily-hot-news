@@ -17,12 +17,28 @@ export function SearchResults({
 }: SearchResultsProps) {
   if (results.total === 0) {
     return (
-      <div className="border border-zinc-200 rounded-lg p-8 text-center">
-        <p className="text-zinc-700">
+      <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 p-10 text-center">
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 text-red-600">
+          <svg
+            className="h-6 w-6"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            viewBox="0 0 24 24"
+            aria-hidden
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M21 21l-4.35-4.35M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z"
+            />
+          </svg>
+        </div>
+        <p className="text-zinc-800">
           Tidak ada artikel yang cocok dengan{" "}
           <span className="font-semibold">&ldquo;{query}&rdquo;</span>.
         </p>
-        <p className="text-sm text-zinc-500 mt-2">
+        <p className="mt-2 text-sm text-zinc-500">
           Coba kata kunci yang lebih umum, atau periksa ejaannya.
         </p>
       </div>
@@ -34,8 +50,12 @@ export function SearchResults({
 
   return (
     <div>
-      <p className="text-sm text-zinc-500 mb-4">
-        Menampilkan {from}&ndash;{to} dari {results.total} hasil untuk{" "}
+      <p className="mb-5 text-sm text-zinc-500">
+        Menampilkan {from}&ndash;{to} dari{" "}
+        <span className="font-semibold tabular-nums text-zinc-700">
+          {results.total}
+        </span>{" "}
+        hasil untuk{" "}
         <span className="font-semibold text-zinc-700">
           &ldquo;{query}&rdquo;
         </span>
@@ -46,7 +66,10 @@ export function SearchResults({
           <ArticleCard key={hit.id} article={hit}>
             {splitHighlights(hit.headline).map((segment, index) =>
               segment.match ? (
-                <mark key={index} className="bg-yellow-200 text-inherit">
+                <mark
+                  key={index}
+                  className="rounded bg-amber-200/70 px-0.5 font-medium text-zinc-900"
+                >
                   {segment.text}
                 </mark>
               ) : (

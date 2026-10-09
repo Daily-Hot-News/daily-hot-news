@@ -21,10 +21,13 @@ export function Pagination({ page, totalPages, hrefFor }: PaginationProps) {
   const pages = Array.from({ length: end - start + 1 }, (_, i) => start + i);
 
   const linkClass =
-    "px-3 py-1.5 text-sm border border-zinc-300 rounded hover:bg-zinc-100";
+    "inline-flex h-10 min-w-10 items-center justify-center rounded-lg border border-zinc-200 px-3 text-sm font-medium text-zinc-700 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-700";
 
   return (
-    <nav aria-label="Navigasi halaman" className="flex items-center gap-1 mt-8">
+    <nav
+      aria-label="Navigasi halaman"
+      className="mt-10 flex flex-wrap items-center gap-2"
+    >
       {page > 1 && (
         <Link href={hrefFor(page - 1)} className={linkClass} rel="prev">
           Sebelumnya
@@ -38,7 +41,7 @@ export function Pagination({ page, totalPages, hrefFor }: PaginationProps) {
           aria-current={p === page ? "page" : undefined}
           className={
             p === page
-              ? "px-3 py-1.5 text-sm border border-zinc-900 bg-zinc-900 text-white rounded"
+              ? "inline-flex h-10 min-w-10 items-center justify-center rounded-lg bg-linear-to-br from-red-600 to-rose-500 px-3 text-sm font-bold text-white shadow-sm"
               : linkClass
           }
         >

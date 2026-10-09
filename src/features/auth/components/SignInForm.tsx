@@ -44,7 +44,7 @@ export function SignInForm() {
           type="text"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="md:max-w-md border rounded border-zinc-300 px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="rounded-lg border border-zinc-300 px-3.5 py-2.5 text-sm transition-colors focus:border-red-400 focus:outline-none focus:ring-2 focus:ring-red-200"
           required
         />
       </div>
@@ -58,7 +58,7 @@ export function SignInForm() {
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="border rounded border-zinc-300 px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="rounded-lg border border-zinc-300 px-3.5 py-2.5 text-sm transition-colors focus:border-red-400 focus:outline-none focus:ring-2 focus:ring-red-200"
           required
         />
       </div>
@@ -69,10 +69,10 @@ export function SignInForm() {
       </Button>
 
       <div className="flex gap-1">
-        <label className="text-sm font-medium">Need an account? </label>{" "}
+        <span className="text-sm text-zinc-600">Need an account? </span>{" "}
         <Link
           href="/sign-up"
-          className="text-sm font-medium hover:text-blue-500 transition duration-300 cursor-pointer"
+          className="text-sm font-semibold text-red-600 transition-colors duration-200 hover:text-red-700"
         >
           Register here
         </Link>
