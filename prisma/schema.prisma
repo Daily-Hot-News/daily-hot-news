@@ -214,7 +214,7 @@ model NewsletterSubscriber {
 
 enum UserRole {
   USER
-  AUTHOR
+  ADMIN
 }
 
 enum ArticleStatus {

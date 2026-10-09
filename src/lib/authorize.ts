@@ -8,10 +8,11 @@ export type CurrentUser = { id: string; role: UserRole };
 /**
  * Ambil user yang sedang login beserta rolenya.
  *
- * Role diambil ulang dari database, bukan dari `session.user`, karena Better-Auth
- * di src/lib/auth.ts belum mendaftarkan `role` sebagai additionalFields - jadi
- * `session.user.role` selalu undefined. Kalau nanti Dev A menambahkannya,
- * query kedua di sini bisa dihapus.
+ * Role sengaja dibaca ulang dari database, bukan dari `session.user.role`.
+ * Better-Auth memang sudah mendaftarkan `role` sebagai additionalFields di
+ * src/lib/auth.ts, tapi nilai di sesi ikut basi kalau role diubah saat user
+ * masih login - pencabutan akses jadi tidak langsung berlaku. Satu query
+ * ringan ini menjaga keputusan otorisasi tetap mengikuti kondisi terbaru.
  */
 export async function getCurrentUser(): Promise<CurrentUser | null> {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -28,19 +29,22 @@ export type AuthzResult =
   | { ok: false; error: string };
 
 /**
- * Guard untuk server action yang mengubah data (Category, Tag).
+ * Guard untuk server action yang mengubah data (Category, Tag, Article).
  * Dipakai sebagai baris pertama di setiap action mutasi.
+ *
+ * Server action bisa dipanggil lewat POST langsung, bukan cuma dari UI, jadi
+ * cek ini tidak boleh hanya mengandalkan guard di halaman atau layout.
  */
-export async function requireAuthor(): Promise<AuthzResult> {
+export async function requireAdmin(): Promise<AuthzResult> {
   const user = await getCurrentUser();
 
   if (!user) {
     return { ok: false, error: "Anda harus login terlebih dahulu." };
   }
-  if (user.role !== "AUTHOR") {
+  if (user.role !== "ADMIN") {
     return {
       ok: false,
-      error: "Akses ditolak. Hanya AUTHOR yang boleh mengubah data ini.",
+      error: "Akses ditolak. Hanya ADMIN yang boleh mengubah data ini.",
     };
   }
 

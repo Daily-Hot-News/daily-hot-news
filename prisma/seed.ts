@@ -13,6 +13,7 @@ import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { auth } from "../src/lib/auth";
 
 const pool = new Pool({
   connectionString: process.env.DIRECT_URL ?? process.env.DATABASE_URL,
@@ -254,19 +255,83 @@ function slugifyTag(name: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
+/**
+ * Akun admin yang benar-benar bisa dipakai login.
+ *
+ * Dibuat lewat `auth.api.signUpEmail()`, bukan `prisma.user.create()`, karena
+ * password disimpan ter-hash di tabel `Account` - baris `user` sendirian tidak
+ * membuat akun bisa masuk. Itu sebabnya user `redaksi@dailyhotnews.test` di
+ * bawah tidak bisa login: dia memang hanya record penulis untuk artikel seed.
+ *
+ * Kredensial dibaca dari env supaya tidak ada password yang ikut ke-commit.
+ * Kalau `SEED_ADMIN_PASSWORD` kosong, langkah ini dilewati dan bukan dianggap
+ * gagal - sisa seed (kategori, tag, artikel) tetap berguna tanpa akun admin.
+ */
+async function seedAdmin() {
+  const email = process.env.SEED_ADMIN_EMAIL ?? "admin@dailyhotnews.test";
+  const password = process.env.SEED_ADMIN_PASSWORD;
+  const name = process.env.SEED_ADMIN_NAME ?? "Admin";
+
+  if (!password) {
+    console.log(
+      "Admin dilewati: SEED_ADMIN_PASSWORD belum diisi di .env.\n" +
+        "  Isi dulu (minimal 8 karakter), lalu jalankan `npm run db:seed` lagi.",
+    );
+    return;
+  }
+  if (password.length < 8) {
+    throw new Error(
+      "SEED_ADMIN_PASSWORD minimal 8 karakter - itu aturan default Better-Auth.",
+    );
+  }
+
+  const existing = await prisma.user.findUnique({
+    where: { email },
+    select: { id: true, role: true },
+  });
+
+  // Password milik akun yang sudah ada sengaja tidak ditimpa: seed ini
+  // idempotent, dan menimpa password diam-diam bisa mengunci orang lain.
+  if (existing) {
+    if (existing.role !== "ADMIN") {
+      await prisma.user.update({
+        where: { id: existing.id },
+        data: { role: "ADMIN" },
+      });
+    }
+    console.log(
+      `Admin sudah ada: ${email} (role ADMIN dipastikan, password dibiarkan).`,
+    );
+    return;
+  }
+
+  await auth.api.signUpEmail({ body: { name, email, password } });
+
+  // signUpEmail selalu membuat user dengan role default USER - `role` di
+  // src/lib/auth.ts di-set `input: false`, jadi tidak bisa dititipkan di body.
+  await prisma.user.update({
+    where: { email },
+    data: { role: "ADMIN", emailVerified: true },
+  });
+
+  console.log(`Admin dibuat: ${email} (role ADMIN).`);
+}
+
 async function main() {
   const now = new Date();
+
+  await seedAdmin();
 
   // --- Penulis ---
   await prisma.user.upsert({
     where: { id: AUTHOR_ID },
-    update: { role: "AUTHOR" },
+    update: { role: "ADMIN" },
     create: {
       id: AUTHOR_ID,
       name: "Redaksi Daily Hot News",
       email: "redaksi@dailyhotnews.test",
       emailVerified: true,
-      role: "AUTHOR",
+      role: "ADMIN",
       createdAt: now,
       updatedAt: now,
     },
@@ -388,4 +453,9 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
     await pool.end();
+
+    // `auth` memakai client di src/lib/prisma.ts, yang membuka pool `pg`
+    // sendiri dan tidak mengekspornya - tanpa exit eksplisit proses seed
+    // menggantung menunggu koneksi itu ditutup.
+    process.exit(process.exitCode ?? 0);
   });

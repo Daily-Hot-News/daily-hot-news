@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { requireAuthor } from "@/lib/authorize";
+import { requireAdmin } from "@/lib/authorize";
 import { resolveSlug } from "@/lib/slugify";
 import { fail, ok, toUserMessage, type ActionResult } from "@/lib/actionResult";
 
@@ -64,7 +64,7 @@ function readForm(formData: FormData): CategoryInput | null {
 }
 
 export async function createCategory(formData: FormData): Promise<ActionResult> {
-  const authz = await requireAuthor();
+  const authz = await requireAdmin();
   if (!authz.ok) return fail(authz.error);
 
   const input = readForm(formData);
@@ -96,7 +96,7 @@ export async function updateCategory(
   id: string,
   formData: FormData,
 ): Promise<ActionResult> {
-  const authz = await requireAuthor();
+  const authz = await requireAdmin();
   if (!authz.ok) return fail(authz.error);
 
   const input = readForm(formData);
@@ -136,7 +136,7 @@ export async function updateCategory(
 }
 
 export async function deleteCategory(id: string): Promise<ActionResult> {
-  const authz = await requireAuthor();
+  const authz = await requireAdmin();
   if (!authz.ok) return fail(authz.error);
 
   try {

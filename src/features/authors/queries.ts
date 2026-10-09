@@ -24,12 +24,12 @@ export async function getAuthorByIdentifier(identifier: string) {
     const user = await prisma.user.findFirst({
       where: {
         id: identifier,
-        role: "AUTHOR",
+        role: "ADMIN",
       },
     });
-    // Jika user tidak ada atau bukan AUTHOR, kembalikan null (akan 404)
+    // Jika user tidak ada atau bukan ADMIN, kembalikan null (akan 404)
     if (!user) return null;
-    // 3. AUTO-CREATE: Buatkan AuthorProfile & Slug otomatis untuk Author ini!
+    // 3. AUTO-CREATE: Buatkan AuthorProfile & Slug otomatis untuk penulis ini!
     const autoSlug =
       user.name.toLowerCase().replace(/\s+/g, "-") + "-" + user.id.slice(-4);
     authorProfile = await prisma.authorProfile.upsert({

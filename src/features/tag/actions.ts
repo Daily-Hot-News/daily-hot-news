@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { requireAuthor } from "@/lib/authorize";
+import { requireAdmin } from "@/lib/authorize";
 import { resolveSlug, slugify } from "@/lib/slugify";
 import { fail, ok, toUserMessage, type ActionResult } from "@/lib/actionResult";
 import type { TagRef } from "./types";
@@ -25,7 +25,7 @@ function readForm(formData: FormData): TagInput | null {
 }
 
 export async function createTag(formData: FormData): Promise<ActionResult> {
-  const authz = await requireAuthor();
+  const authz = await requireAdmin();
   if (!authz.ok) return fail(authz.error);
 
   const input = readForm(formData);
@@ -55,7 +55,7 @@ export async function updateTag(
   id: string,
   formData: FormData,
 ): Promise<ActionResult> {
-  const authz = await requireAuthor();
+  const authz = await requireAdmin();
   if (!authz.ok) return fail(authz.error);
 
   const input = readForm(formData);
@@ -84,7 +84,7 @@ export async function updateTag(
 }
 
 export async function deleteTag(id: string): Promise<ActionResult> {
-  const authz = await requireAuthor();
+  const authz = await requireAdmin();
   if (!authz.ok) return fail(authz.error);
 
   try {
@@ -108,7 +108,7 @@ export async function deleteTag(id: string): Promise<ActionResult> {
  * "  Pemilu   2029  " semuanya mengarah ke satu tag yang sama.
  */
 export async function findOrCreateTags(names: string[]): Promise<TagRef[]> {
-  const authz = await requireAuthor();
+  const authz = await requireAdmin();
   if (!authz.ok) return [];
 
   // Buang duplikat berdasarkan slug, pertahankan nama tampilan pertama.

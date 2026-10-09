@@ -9,7 +9,7 @@ interface ProfileCardProps {
     name: string;
     email: string;
     image: string | null;
-    role: "USER" | "AUTHOR";
+    role: "USER" | "ADMIN";
     emailVerified: boolean;
     createdAt: Date;
     _count?: {
@@ -20,12 +20,12 @@ interface ProfileCardProps {
 }
 
 const roleBadgeStyles: Record<string, string> = {
-  AUTHOR: "bg-purple-100 text-purple-700 border border-purple-200", // Ungu untuk Author
+  ADMIN: "bg-purple-100 text-purple-700 border border-purple-200", // Ungu untuk Admin
   USER: "bg-blue-100 text-blue-700 border border-blue-200", // Biru untuk User biasa
 };
 
 const headerBannerStyles: Record<string, string> = {
-  AUTHOR: "h-28 bg-linear-to-r from-indigo-600 to-blue-700 relative", // untuk Author
+  ADMIN: "h-28 bg-linear-to-r from-indigo-600 to-blue-700 relative", // untuk Admin
   USER: "h-28 bg-linear-to-r from-blue-600 to-indigo-700 relative", // untuk User biasa
 };
 
@@ -106,12 +106,12 @@ export function ProfileCard({ user }: ProfileCardProps) {
               <div>
                 <span className="text-zinc-500 block text-xs">Tipe Akun</span>
                 <span className="font-medium text-zinc-800">
-                  {user.role === "AUTHOR"
-                    ? "Penulis Berita (Author)"
+                  {user.role === "ADMIN"
+                    ? "Penulis Berita (Admin)"
                     : "Pembaca (User)"}
                 </span>
               </div>
-              {user.role === "AUTHOR" && user._count && (
+              {user.role === "ADMIN" && user._count && (
                 <div>
                   <span className="text-zinc-500 block text-xs">
                     Total Artikel

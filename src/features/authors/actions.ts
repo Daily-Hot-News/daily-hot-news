@@ -15,8 +15,8 @@ export async function updateAuthorProfile(formData: FormData) {
       return { error: "Anda harus login terlebih dahulu." };
     }
 
-    if (session.user.role !== "AUTHOR") {
-      return { error: "Anda tidak memiliki akses sebagai Author." };
+    if (session.user.role !== "ADMIN") {
+      return { error: "Anda tidak memiliki akses sebagai penulis." };
     }
 
     const displayName = (formData.get("displayName") as string)?.trim();
